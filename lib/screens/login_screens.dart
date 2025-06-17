@@ -26,12 +26,33 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                // Logo perusahaan di atas tengah
+                // Logo perusahaan
                 Image.asset(
                   'assets/images/Logo.png',
                   height: 150,
                 ),
+                const SizedBox(height: 10),
+
+                // Tulisan Mobile Bengkel
+                RichText(
+                  text: const TextSpan(
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    children: [
+                      TextSpan(
+                        text: 'Mobile ',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: 'Bengkel',
+                        style: TextStyle(color: Colors.orange),
+                      ),
+                    ],
+                  ),
+                ),
+
                 const SizedBox(height: 20),
+
+                // Kartu Login
                 Card(
                   elevation: 10,
                   shape: RoundedRectangleBorder(
@@ -106,16 +127,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Center(
                           child: Text(
                             "Don't have an account?",
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(color: Color.fromARGB(255, 0, 187, 255)),
                           ),
                         ),
                         const SizedBox(height: 20),
-                        OutlinedButton.icon(
+                        OutlinedButton(
                           onPressed: () {
-                            // Aksi login via Google (placeholder)
+                            // Aksi login via Google
                           },
-                          icon: const Icon(Icons.g_mobiledata, size: 28),
-                          label: const Text('Login with Google'),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -123,6 +142,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             side: const BorderSide(color: Colors.grey),
                             foregroundColor: Colors.black87,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/Google.webp',
+                                height: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'Login with Google',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
                           ),
                         ),
                       ],
