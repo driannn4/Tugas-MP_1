@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'main_navigation.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -26,33 +29,24 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                // Logo perusahaan
-                Image.asset(
-                  'assets/images/Logo.png',
-                  height: 150,
-                ),
+                // Logo
+                Image.asset('assets/images/Logo.png', height: 150),
                 const SizedBox(height: 10),
 
-                // Tulisan Mobile Bengkel
+                // Judul Mobile Bengkel
                 RichText(
                   text: const TextSpan(
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     children: [
-                      TextSpan(
-                        text: 'Mobile ',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      TextSpan(
-                        text: 'Bengkel',
-                        style: TextStyle(color: Colors.orange),
-                      ),
+                      TextSpan(text: 'Mobile ', style: TextStyle(color: Colors.black)),
+                      TextSpan(text: 'Bengkel', style: TextStyle(color: Colors.orange)),
                     ],
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Kartu Login
+                // Card Login
                 Card(
                   elevation: 10,
                   shape: RoundedRectangleBorder(
@@ -66,14 +60,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Text(
                           'Welcome Back!',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 30),
+
+                        // Username
                         TextField(
+                          controller: _usernameController,
                           decoration: InputDecoration(
                             labelText: 'Username',
                             prefixIcon: const Icon(Icons.person),
@@ -83,16 +76,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
+
+                        // Password
                         TextField(
+                          controller: _passwordController,
                           obscureText: _obscurePassword,
                           decoration: InputDecoration(
                             labelText: 'Password',
                             prefixIcon: const Icon(Icons.lock),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -105,35 +99,78 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 30),
+
+                        // Forgot Password
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text("Forgot Password"),
+                                  content: const Text("Silakan hubungi admin untuk reset password."),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text("OK"),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(color: Colors.blueAccent),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Tombol Login
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/shop');
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainNavigation(
+                                  username: _usernameController.text,
+                                ),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black87,
-                            foregroundColor: Colors.white,
+                            backgroundColor: const Color.fromARGB(255, 255, 193, 48),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
                           ),
-                          child: const Text(
-                            'Login',
-                            style: TextStyle(fontSize: 18),
-                          ),
+                          child: const Text('Login', style: TextStyle(fontSize: 18)),
                         ),
+
                         const SizedBox(height: 20),
+
+                        // Tulisan bawah
                         const Center(
                           child: Text(
                             "Don't have an account?",
                             style: TextStyle(color: Color.fromARGB(255, 0, 187, 255)),
                           ),
                         ),
+
                         const SizedBox(height: 20),
+
+                        // Tombol Google Login
                         OutlinedButton(
                           onPressed: () {
-                            // Aksi login via Google
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Login with Google coming soon!'),
+                              ),
+                            );
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -141,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(14),
                             ),
                             side: const BorderSide(color: Colors.grey),
-                            foregroundColor: Colors.black87,
+                            foregroundColor: const Color.fromARGB(221, 0, 0, 0),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

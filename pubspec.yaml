@@ -1,8 +1,7 @@
 name: tugas_mp1
 description: A new Flutter project.
 
-publish_to: 'none' # Prevent publishing to pub.dev
-
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
@@ -12,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  carousel_slider: ^4.1.1  # ✅ versi stabil & tanpa konflik
 
 dev_dependencies:
   flutter_test:
@@ -24,4 +24,18 @@ flutter:
   assets:
     - assets/images/Google.webp
     - assets/images/Logo.png
-
+    - assets/images/aki.jpg
+    - assets/images/busi.jpg
+    - assets/images/filter.jpg
+    - assets/images/Kampas.jpeg
+    - assets/images/oli.jpeg
+    - assets/images/rantei.jpeg
+    - assets/images/suzuki.png
+    - assets/images/yamaha.png
+    - assets/images/lainnya.png
+    - assets/images/Honda.jpeg
+    - assets/images/logohonda.png
+    - assets/images/banner.jpg
+    - assets/images/welcome1.png
+    - assets/images/welcome2.png
+    - assets/images/welcome3.png
