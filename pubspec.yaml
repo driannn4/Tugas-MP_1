@@ -11,7 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  carousel_slider: ^4.1.1  # ✅ versi stabil & tanpa konflik
+  carousel_slider: ^5.0.0
+
+
 
 dev_dependencies:
   flutter_test:
@@ -39,3 +41,9 @@ flutter:
     - assets/images/welcome1.png
     - assets/images/welcome2.png
     - assets/images/welcome3.png
+    - assets/images/login.jpg
+    - assets/images/backgroun.jpg
+    - assets/images/wiwok.jpg
+    - assets/images/detok.jpg
+    - assets/images/testt.jpg
+    - assets/images/biru.jpg

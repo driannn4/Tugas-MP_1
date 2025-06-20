@@ -13,19 +13,31 @@ class HomeScreens extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
           children: [
             // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Hai, $username 👋',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Selamat datang kembali 👋',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      'Hai, ${username.toLowerCase()}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ],
                 ),
                 PopupMenuButton<String>(
                   icon: const CircleAvatar(
@@ -155,12 +167,12 @@ class CategoryIcon extends StatelessWidget {
     return Column(
       children: [
         CircleAvatar(
-          radius: 30,
+          radius: 24, // KECILKAN dari 30 jadi 24
           backgroundColor: Colors.white,
           backgroundImage: AssetImage(image),
         ),
-        const SizedBox(height: 6),
-        Text(name, style: const TextStyle(fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(name, style: const TextStyle(fontSize: 11)),
       ],
     );
   }
@@ -177,12 +189,12 @@ class ServiceItem extends StatelessWidget {
     return Column(
       children: [
         CircleAvatar(
-          radius: 26,
+          radius: 22,
           backgroundColor: primaryColor.withOpacity(0.15),
-          child: Icon(icon, color: primaryColor, size: 24),
+          child: Icon(icon, color: primaryColor, size: 22),
         ),
-        const SizedBox(height: 6),
-        Text(name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
       ],
     );
   }

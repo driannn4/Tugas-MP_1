@@ -28,102 +28,142 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 30),
-
-            // Carousel Gambar + Caption
-            CarouselSlider.builder(
-              itemCount: images.length,
-              options: CarouselOptions(
-                height: 340,
-                autoPlay: true,
-                enlargeCenterPage: true,
-                viewportFraction: 0.85,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/biru.jpg'), // ✅ Background image
+                fit: BoxFit.cover,
               ),
-              itemBuilder: (context, index, _) {
-                return Column(
-                  children: [
-                    Image.asset(
-                      images[index],
-                      height: 240,
-                      fit: BoxFit.contain,
+            ),
+          ),
+
+          // Dark Overlay
+          Container(
+            color: Colors.black.withOpacity(0.2), // ✅ Tambahkan overlay gelap
+          ),
+
+          // Main Content
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  const SizedBox(height: 32),
+
+                  // Title: Mobile Bengkel
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      children: [
+                        TextSpan(text: 'Mobile ', style: TextStyle(color: Colors.white)),
+                        TextSpan(text: 'Bengkel', style: TextStyle(color: primaryColor)),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        captions[index],
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Carousel
+                  CarouselSlider.builder(
+                    itemCount: images.length,
+                    options: CarouselOptions(
+                      height: 320,
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      viewportFraction: 0.85,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
+                    itemBuilder: (context, index, _) {
+                      return Column(
+                        children: [
+                          Image.asset(
+                            images[index],
+                            height: 220,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            captions[index],
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 4,
+                                  color: Colors.black45,
+                                  offset: Offset(1, 1),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: images.asMap().entries.map((entry) {
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _currentIndex == entry.key ? 12 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _currentIndex == entry.key
+                              ? primaryColor
+                              : Colors.white.withOpacity(0.4),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const Spacer(),
+
+                  // Tombol Login
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            // Indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: images.asMap().entries.map((entry) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentIndex == entry.key ? 12 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _currentIndex == entry.key
-                        ? primaryColor
-                        : Colors.grey[300],
                   ),
-                );
-              }).toList(),
-            ),
 
-            const Spacer(),
-
-            // Tombol Login
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
-
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
