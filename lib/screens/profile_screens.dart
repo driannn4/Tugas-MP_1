@@ -1,20 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final String username;
 
   const ProfileScreen({super.key, required this.username});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String email = '';
+  String phone = '';
+
+  @override
+  void initState() {
+    super.initState();
+    email = "${widget.username}@gmail.com";
+    phone = "+62 812-3456-7890";
+  }
+
+  void _editField(String title, String currentValue, Function(String) onSave) {
+    final controller = TextEditingController(text: currentValue);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit $title'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(hintText: 'Masukkan $title baru'),
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          ElevatedButton(
+            child: const Text('Simpan'),
+            onPressed: () {
+              onSave(controller.text.trim());
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light, // supaya status bar putih
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: const Color(0xFFFDFDFD),
         extendBodyBehindAppBar: true,
         body: SafeArea(
-          top: false, // biar warna orange bisa sampai ke atas
+          top: false,
           child: Column(
             children: [
               // Header
@@ -41,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      username,
+                      widget.username,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
@@ -71,12 +113,22 @@ class ProfileScreen extends StatelessWidget {
                     ProfileTile(
                       icon: Icons.email_outlined,
                       title: "Email",
-                      subtitle: "$username@gmail.com",
+                      subtitle: email,
+                      onEdit: () => _editField("Email", email, (newVal) {
+                        setState(() {
+                          email = newVal;
+                        });
+                      }),
                     ),
                     ProfileTile(
                       icon: Icons.phone_android,
                       title: "Telepon",
-                      subtitle: "+62 812-3456-7890",
+                      subtitle: phone,
+                      onEdit: () => _editField("Telepon", phone, (newVal) {
+                        setState(() {
+                          phone = newVal;
+                        });
+                      }),
                     ),
                     ProfileTile(
                       icon: Icons.settings,
@@ -125,12 +177,13 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// Komponen ProfileTile
+// ProfileTile dengan ikon edit
 class ProfileTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
 
   const ProfileTile({
     super.key,
@@ -138,6 +191,7 @@ class ProfileTile extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.onTap,
+    this.onEdit,
   });
 
   @override
@@ -160,9 +214,14 @@ class ProfileTile extends StatelessWidget {
         subtitle: subtitle != null
             ? Text(subtitle!, style: const TextStyle(color: Colors.black54))
             : null,
-        trailing: onTap != null
-            ? const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)
-            : null,
+        trailing: onEdit != null
+            ? IconButton(
+                icon: const Icon(Icons.edit, size: 20, color: Colors.grey),
+                onPressed: onEdit,
+              )
+            : (onTap != null
+                ? const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)
+                : null),
         onTap: onTap,
       ),
     );

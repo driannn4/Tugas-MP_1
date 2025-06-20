@@ -16,26 +16,25 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Background abu-abu
+      backgroundColor: const Color(0xFFE0E0E0),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background Gambar
+          // Background image (di-nonaktifkan)
+          /*
           Image.asset(
             'assets/images/testt.jpg',
             fit: BoxFit.cover,
           ),
-
-          // Overlay (lebih terang)
-          Container(
-            color: Colors.black.withOpacity(0.0), // Diperterang dari 0.4 → 0.2
-          ),
+          */
 
           // Tombol Back di kiri atas
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 12,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/welcome');
               },
@@ -48,20 +47,23 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
+                  // Logo dan judul
                   Image.asset('assets/images/Logo.png', height: 120),
                   const SizedBox(height: 10),
                   RichText(
                     text: const TextSpan(
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       children: [
-                        TextSpan(text: 'Mobile ', style: TextStyle(color: Colors.white)),
+                        TextSpan(text: 'Mobile ', style: TextStyle(color: Colors.black)),
                         TextSpan(text: 'Bengkel', style: TextStyle(color: Colors.orange)),
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Card Login
                   Card(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white,
                     elevation: 10,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
