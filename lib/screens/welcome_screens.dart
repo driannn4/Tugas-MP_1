@@ -20,9 +20,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   ];
 
   final List<String> captions = [
-    "Cari layanan motor dengan mudah",
-    "Temukan bengkel terdekat dan terpercaya",
-    "Perawatan motor jadi lebih simpel",
+    "Layanan servis motor kini hanya dalam genggaman.",
+    "Temukan bengkel terdekat dan terpercaya.",
+    "Pesan, servis, dan pantau langsung dari aplikasi.",
   ];
 
   @override
@@ -30,33 +30,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
+          // Gradient Background
           Container(
             decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/biru.jpg'), // ✅ Background image
-                fit: BoxFit.cover,
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 62, 161, 232), 
+                  Color.fromARGB(255, 14, 42, 201), 
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
           ),
 
-          // Dark Overlay
-          Container(
-            color: Colors.black.withOpacity(0.2), // ✅ Tambahkan overlay gelap
-          ),
-
-          // Main Content
+          // Konten utama
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 30),
 
-                  // Title: Mobile Bengkel
+                  // Judul
                   RichText(
                     text: const TextSpan(
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                       children: [
                         TextSpan(text: 'Mobile ', style: TextStyle(color: Colors.white)),
                         TextSpan(text: 'Bengkel', style: TextStyle(color: primaryColor)),
@@ -64,13 +63,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 120),
 
                   // Carousel
                   CarouselSlider.builder(
                     itemCount: images.length,
                     options: CarouselOptions(
-                      height: 320,
+                      height: 300,
                       autoPlay: true,
                       enlargeCenterPage: true,
                       viewportFraction: 0.85,
@@ -85,10 +84,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         children: [
                           Image.asset(
                             images[index],
-                            height: 220,
+                            height: 200,
                             fit: BoxFit.contain,
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                           Text(
                             captions[index],
                             textAlign: TextAlign.center,
@@ -96,9 +95,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               fontSize: 16,
                               color: Colors.white,
                               fontWeight: FontWeight.w500,
+                              height: 1.4,
                               shadows: [
                                 Shadow(
-                                  blurRadius: 4,
+                                  blurRadius: 3,
                                   color: Colors.black45,
                                   offset: Offset(1, 1),
                                 ),
@@ -110,7 +110,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Indicator
                   Row(
@@ -132,6 +132,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
 
                   const Spacer(),
+
+                  // Info Tambahan
+                  const Text(
+                    "Solusi servis dan perawatan motor tanpa ribet.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
 
                   // Tombol Login
                   SizedBox(

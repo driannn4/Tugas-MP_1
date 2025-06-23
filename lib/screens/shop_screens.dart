@@ -16,6 +16,7 @@ class ShopScreens extends StatefulWidget {
 
 class _ShopScreensState extends State<ShopScreens> {
   String query = '';
+  String selectedCategory = 'Semua';
 
   final List<Map<String, dynamic>> productList = const [
     {
@@ -50,12 +51,18 @@ class _ShopScreensState extends State<ShopScreens> {
     },
   ];
 
+  final List<String> categories = [
+    'Semua', 'Oli', 'Rem', 'Aki', 'Busi', 'Filter', 'Rantai'
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final filteredProducts = productList
-        .where((product) =>
-            product['name'].toLowerCase().contains(query.toLowerCase()))
-        .toList();
+    final filteredProducts = productList.where((product) {
+      final nameMatch = product['name'].toLowerCase().contains(query.toLowerCase());
+      final categoryMatch = selectedCategory == 'Semua' ||
+          product['name'].toLowerCase().contains(selectedCategory.toLowerCase());
+      return nameMatch && categoryMatch;
+    }).toList();
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -63,6 +70,7 @@ class _ShopScreensState extends State<ShopScreens> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Search Bar
               Container(
@@ -87,7 +95,44 @@ class _ShopScreensState extends State<ShopScreens> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+
+              const Text(
+                'Kategori Produk',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+
+              // Category Chips
+              SizedBox(
+                height: 36,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: categories.map((cat) {
+                    final selected = cat == selectedCategory;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Text(cat),
+                        selected: selected,
+                        onSelected: (_) => setState(() => selectedCategory = cat),
+                        selectedColor: primaryColor,
+                        backgroundColor: Colors.white,
+                        labelStyle: TextStyle(
+                          color: selected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Text(
+                '${filteredProducts.length} produk ditemukan',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
 
               // Produk Grid
               Expanded(
@@ -100,8 +145,7 @@ class _ShopScreensState extends State<ShopScreens> {
                       )
                     : GridView.builder(
                         itemCount: filteredProducts.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 16,
                           crossAxisSpacing: 16,
@@ -139,9 +183,11 @@ class ShopProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return Card(
       elevation: 3,
-      borderRadius: BorderRadius.circular(16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -175,11 +221,8 @@ class ShopProductCard extends StatelessWidget {
               ),
             ),
             const Spacer(),
-
-            // Tombol Lihat Detail & Tambah
             Row(
               children: [
-                // Lihat Detail (Expanded)
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -213,8 +256,6 @@ class ShopProductCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                // Ikon Tambah
                 Container(
                   height: 42,
                   width: 42,
@@ -226,8 +267,7 @@ class ShopProductCard extends StatelessWidget {
                     icon: const Icon(Icons.add_shopping_cart,
                         color: Colors.white, size: 20),
                     onPressed: () {
-                      final index =
-                          cartItems.indexWhere((item) => item['name'] == name);
+                      final index = cartItems.indexWhere((item) => item['name'] == name);
                       if (index != -1) {
                         cartItems[index]['quantity'] += 1;
                       } else {

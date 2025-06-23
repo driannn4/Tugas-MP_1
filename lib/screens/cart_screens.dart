@@ -12,10 +12,23 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   double getTotal() {
-    return cartItems.fold(
-      0,
-      (sum, item) => sum + (item['price'] * item['quantity']),
-    );
+    return cartItems.fold(0, (sum, item) => sum + item['price'] * item['quantity']);
+  }
+
+  void increaseQty(int index) {
+    setState(() {
+      cartItems[index]['quantity'] += 1;
+    });
+  }
+
+  void decreaseQty(int index) {
+    setState(() {
+      if (cartItems[index]['quantity'] > 1) {
+        cartItems[index]['quantity'] -= 1;
+      } else {
+        cartItems.removeAt(index);
+      }
+    });
   }
 
   void removeItem(int index) {
@@ -24,62 +37,74 @@ class _CartScreenState extends State<CartScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Barang berhasil dihapus")),
+      const SnackBar(content: Text("Produk dihapus dari keranjang")),
     );
   }
 
-  void increaseQuantity(int index) {
-    setState(() {
-      cartItems[index]['quantity'] += 1;
-    });
-  }
+  void handleCheckout() {
+    if (cartItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Keranjang masih kosong")),
+      );
+      return;
+    }
 
-  void decreaseQuantity(int index) {
-    setState(() {
-      if (cartItems[index]['quantity'] > 1) {
-        cartItems[index]['quantity'] -= 1;
-      } else {
-        removeItem(index);
-      }
-    });
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Konfirmasi Checkout"),
+        content: Text("Total belanja: Rp ${getTotal().toStringAsFixed(0)}"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
+            onPressed: () {
+              setState(() => cartItems.clear());
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Checkout berhasil!")),
+              );
+            },
+            child: const Text("Lanjut"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         title: const Text("Keranjang"),
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
-        elevation: 0,
       ),
-      backgroundColor: const Color(0xFFF5F5F5),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Expanded(
               child: cartItems.isEmpty
-                  ? const Center(
-                      child: Text(
-                        "Keranjang kosong",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    )
-                  : ListView.separated(
+                  ? const Center(child: Text("Keranjang kosong"))
+                  : ListView.builder(
                       itemCount: cartItems.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final item = cartItems[index];
                         return Container(
-                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: const [
                               BoxShadow(
-                                color: Colors.black12,
                                 blurRadius: 4,
+                                color: Colors.black12,
                                 offset: Offset(0, 2),
                               )
                             ],
@@ -87,84 +112,63 @@ class _CartScreenState extends State<CartScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Info Produk
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['name'],
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                              // Kiri: Info produk
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(item['name'],
+                                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    Text('Rp ${item['price']} x ${item['quantity']}',
+                                        style: const TextStyle(color: Colors.grey)),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.remove_circle, color: Colors.red),
+                                          onPressed: () => decreaseQty(index),
+                                        ),
+                                        Text('${item['quantity']}'),
+                                        IconButton(
+                                          icon: const Icon(Icons.add_circle, color: primaryColor),
+                                          onPressed: () => increaseQty(index),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Rp ${item['price']} x${item['quantity']}',
-                                    style: const TextStyle(color: Colors.grey),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove_circle,
-                                            color: Colors.red),
-                                        onPressed: () => decreaseQuantity(index),
-                                      ),
-                                      Text(
-                                        '${item['quantity']}',
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.add_circle,
-                                            color: primaryColor),
-                                        onPressed: () => increaseQuantity(index),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-
-                              // Harga Total dan Hapus
+                              // Kanan: Total dan hapus
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
                                     'Rp ${item['price'] * item['quantity']}',
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
                                       color: Colors.green,
-                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.grey),
+                                    icon: const Icon(Icons.delete, color: Colors.grey),
                                     onPressed: () => removeItem(index),
-                                  ),
+                                  )
                                 ],
-                              ),
+                              )
                             ],
                           ),
                         );
                       },
                     ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Footer Total + Checkout
+            // Footer Total & Checkout
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, -2),
-                  )
+                  BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
                 ],
               ),
               child: Column(
@@ -172,39 +176,23 @@ class _CartScreenState extends State<CartScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Total",
+                      const Text("Total", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text("Rp ${getTotal().toStringAsFixed(0)}",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text(
-                        "Rp ${getTotal().toStringAsFixed(0)}",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: primaryColor,
-                        ),
-                      ),
+                              fontWeight: FontWeight.bold, color: primaryColor, fontSize: 16)),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Checkout belum diimplementasi")),
-                      );
-                    },
+                    onPressed: handleCheckout,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
-                      minimumSize: const Size.fromHeight(48),
+                      minimumSize: const Size.fromHeight(45),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      "Checkout",
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    child: const Text("Checkout"),
                   )
                 ],
               ),
