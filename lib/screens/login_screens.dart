@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'main_navigation.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -136,27 +139,65 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 10),
                           ElevatedButton(
-                            onPressed: () {
-                              final username = _usernameController.text.trim();
-                              final password = _passwordController.text.trim();
+                    onPressed: () async {
+  final email = _usernameController.text.trim();
+  final password = _passwordController.text.trim();
 
-                              if (username.isEmpty || password.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Username dan password tidak boleh kosong"),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
-                                return;
-                              }
+  if (email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Email dan password tidak boleh kosong"),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    return;
+  }
 
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainNavigation(username: username),
-                                ),
-                              );
-                            },
+  try {
+   final response = await http.post(
+  Uri.parse('http://10.0.2.2:8000/api/customer/login'),
+  headers: {'Accept': 'application/json'},
+  body: {
+    'email': email,
+    'password': password,
+  },
+);
+
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['token'];
+
+      // Simpan token ke storage
+      const storage = FlutterSecureStorage();
+      await storage.write(key: 'token', value: token);
+
+      // Navigasi ke halaman utama
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainNavigation(username: data['customer']['name']),
+        ),
+      );
+    } else {
+      final data = jsonDecode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(data['message'] ?? 'Login gagal'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: ${e.toString()}'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+  }
+},
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(255, 255, 193, 48),
                               padding: const EdgeInsets.symmetric(vertical: 16),
