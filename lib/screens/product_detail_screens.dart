@@ -1,22 +1,63 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'cart_data.dart';
 
 const Color primaryColor = Color.fromARGB(255, 240, 155, 27);
 
-class ProductDetailScreen extends StatelessWidget {
-  final String name;
-  final int price;
-  final String imagePath;
+class ProductDetailScreen extends StatefulWidget {
+  final int productId;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.name,
-    required this.price,
-    required this.imagePath,
-  });
+  const ProductDetailScreen({super.key, required this.productId});
+
+  @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  Map<String, dynamic>? product;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProductDetail();
+  }
+
+  Future<void> fetchProductDetail() async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/products/${widget.productId}'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        final jsonData = json.decode(response.body);
+        product = jsonData is Map && jsonData.containsKey('data') ? jsonData['data'] : jsonData;
+
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      print("Gagal ambil detail produk: ${response.statusCode}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (product == null) {
+      return const Scaffold(
+        body: Center(child: Text("Produk tidak ditemukan")),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Detail Produk"),
@@ -28,50 +69,44 @@ class ProductDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gambar
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                imagePath,
+              child: Image.network(
+                product!['image_url'],
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.broken_image),
               ),
             ),
             const SizedBox(height: 20),
-
-            // Nama & Harga
             Text(
-              name,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              product!['name'],
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              'Rp$price',
+              'Rp${double.tryParse(product!['price'].toString())?.toStringAsFixed(0) ?? "0"}',
               style: const TextStyle(
                 fontSize: 18,
                 color: Colors.green,
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 10),
+            Text(
+              product!['merk'] ?? '',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
             const SizedBox(height: 20),
-
-            // Deskripsi (dummy)
             const Text(
               'Deskripsi Produk:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Produk ini adalah spare part berkualitas tinggi yang cocok untuk motor Anda.',
-            ),
-
+            Text(product!['description'] ?? '-'),
             const Spacer(),
-
-            // Tombol tambah ke keranjang
             SizedBox(
               width: double.infinity,
               height: 48,
@@ -83,6 +118,8 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                  final name = product!['name'];
+                  final price = double.tryParse(product!['price'].toString()) ?? 0;
                   final index = cartItems.indexWhere((item) => item['name'] == name);
                   if (index != -1) {
                     cartItems[index]['quantity'] += 1;

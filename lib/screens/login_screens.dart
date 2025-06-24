@@ -3,6 +3,7 @@ import 'main_navigation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,20 +20,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Background abu-abu
       backgroundColor: const Color(0xFFE0E0E0),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image (di-nonaktifkan)
-          /*
-          Image.asset(
-            'assets/images/testt.jpg',
-            fit: BoxFit.cover,
-          ),
-          */
-
-          // Tombol Back di kiri atas
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 12,
@@ -43,14 +34,11 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
           ),
-
-          // Konten Login
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Logo dan judul
                   Image.asset('assets/images/Logo.png', height: 120),
                   const SizedBox(height: 10),
                   RichText(
@@ -63,8 +51,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Card Login
                   Card(
                     color: Colors.white,
                     elevation: 10,
@@ -141,65 +127,62 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 10),
                           ElevatedButton(
-                    onPressed: () async {
-  final email = _usernameController.text.trim();
-  final password = _passwordController.text.trim();
+                            onPressed: () async {
+                              final email = _usernameController.text.trim();
+                              final password = _passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Email dan password tidak boleh kosong"),
-        backgroundColor: Colors.redAccent,
-      ),
-    );
-    return;
-  }
+                              if (email.isEmpty || password.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Email dan password tidak boleh kosong"),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                                return;
+                              }
 
-  try {
-   final response = await http.post(
-  Uri.parse('http://10.0.2.2:8000/api/customer/login'),
-  headers: {'Accept': 'application/json'},
-  body: {
-    'email': email,
-    'password': password,
-  },
-);
+                              try {
+                                final response = await http.post(
+                                  Uri.parse('http://10.0.2.2:8000/api/customer/login'),
+                                  headers: {'Accept': 'application/json'},
+                                  body: {
+                                    'email': email,
+                                    'password': password,
+                                  },
+                                );
 
+                                if (response.statusCode == 200) {
+                                  final data = jsonDecode(response.body);
+                                  final token = data['token'];
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['token'];
+                                  const storage = FlutterSecureStorage();
+                                  await storage.write(key: 'token', value: token);
 
-      // Simpan token ke storage
-      const storage = FlutterSecureStorage();
-      await storage.write(key: 'token', value: token);
-
-      // Navigasi ke halaman utama
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainNavigation(username: data['customer']['name']),
-        ),
-      );
-    } else {
-      final data = jsonDecode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(data['message'] ?? 'Login gagal'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: ${e.toString()}'),
-        backgroundColor: Colors.redAccent,
-      ),
-    );
-  }
-},
-
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MainNavigation(username: data['customer']['name']),
+                                    ),
+                                  );
+                                } else {
+                                  final data = jsonDecode(response.body);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(data['message'] ?? 'Login gagal'),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.toString()}'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(255, 255, 193, 48),
                               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -218,12 +201,76 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 20),
                           OutlinedButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Login with Google coming soon!'),
-                                ),
-                              );
+                            onPressed: () async {
+                              try {
+                                print("Memulai proses login Google...");
+                                final GoogleSignIn googleSignIn = GoogleSignIn();
+                                final GoogleSignInAccount? account = await googleSignIn.signIn();
+
+                                if (account == null) {
+                                  print("Login dibatalkan oleh user");
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Login dibatalkan")),
+                                  );
+                                  return;
+                                }
+
+                                print("Login berhasil. Akun: ${account.email}");
+                                final GoogleSignInAuthentication auth = await account.authentication;
+
+                                print("Access Token: ${auth.accessToken}");
+                                print("ID Token: ${auth.idToken}");
+
+                                final idToken = auth.idToken;
+                                if (idToken == null) {
+                                  print("Gagal mendapatkan ID Token");
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Gagal mendapatkan ID Token')),
+                                  );
+                                  return;
+                                }
+
+                                final response = await http.post(
+                                  Uri.parse('http://10.0.2.2:8000/api/auth/google'),
+                                  headers: {'Accept': 'application/json'},
+                                  body: {'id_token': idToken},
+                                );
+
+                                print("Response dari Laravel: ${response.statusCode}");
+                                print("Body: ${response.body}");
+
+                                if (response.statusCode == 200) {
+                                  final data = jsonDecode(response.body);
+                                  final token = data['token'];
+
+                                  const storage = FlutterSecureStorage();
+                                  await storage.write(key: 'token', value: token);
+
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MainNavigation(username: data['customer']['name']),
+                                    ),
+                                  );
+                                } else {
+                                  final data = jsonDecode(response.body);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(data['message'] ?? 'Login Google gagal'),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                print("Error saat login Google: $e");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Login error: $e'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
                             },
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),

@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 
 const Color primaryColor = Color.fromARGB(255, 240, 155, 27);
+String getFirstTwoWords(String name) {
+  final words = name.split(' ');
+  if (words.length <= 2) {
+    return name;
+  } else {
+    return '${words[0]} ${words[1]}';
+  }
+}
 
 class HomeScreens extends StatelessWidget {
   final String username;
@@ -30,7 +38,7 @@ class HomeScreens extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Hai, ${username.toLowerCase()}',
+                      'Hai, ${getFirstTwoWords(username.toLowerCase())}!',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
