@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-const Color primaryColor = Color.fromARGB(255, 240, 155, 27);
+const Color primaryColor = Color.fromARGB(255, 255, 159, 15);
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});

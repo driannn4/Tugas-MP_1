@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'cart_data.dart';
 
-const Color primaryColor = Color.fromARGB(255, 240, 155, 27);
+const Color primaryColor = Color.fromARGB(255, 20, 134, 255);
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
